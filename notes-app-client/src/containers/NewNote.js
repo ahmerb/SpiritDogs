@@ -52,11 +52,21 @@ export default class NewNote extends Component {
         attachment,
         content: this.state.content
       });
+
+      this.setState({
+        isUploading: false,
+        isClassifying: true
+      });
+
+      await this.classifyNote(newNote.noteId);
       
       this.props.history.push(`/notes/${newNote.noteId}`);
     } catch (e) {
       alert(e);
-      this.setState({ isUploading: false });
+      this.setState({
+        isUploading: false,
+        isClassifying: false
+      });
     }
   }
   
@@ -64,6 +74,10 @@ export default class NewNote extends Component {
     return API.post("notes", "/notes", {
       body: note
     });
+  }
+
+  classifyNote(noteId) {
+    return API.get("notes", `/classify/${noteId}`);
   }
 
   render() {
@@ -90,6 +104,16 @@ export default class NewNote extends Component {
             isLoading={this.state.isUploading}
             text="Create"
             loadingText="Creating…"
+          />
+          <LoaderButton
+            block
+            bsStyle="info"
+            bsSize="large"
+            disabled={true}
+            type="submit"
+            isLoading={this.state.isClassifying}
+            text="Waiting for image..."
+            loadingText="Classifying…"
           />
         </form>
       </div>

@@ -97,3 +97,14 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+  classify:
+    # Defines an HTTP API endpoint that calls the main function in classify.js
+    # - path: url path is /classify/{id}
+    # - method: DELETE request
+    handler: classify.main
+    events:
+      - http:
+          path: classify/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
