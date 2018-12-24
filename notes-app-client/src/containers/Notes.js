@@ -153,6 +153,7 @@ export default class Notes extends Component {
                 <ControlLabel>Attachment</ControlLabel>}
               <FormControl onChange={this.handleFileChange} type="file" />
             </FormGroup>
+            <div>{this.state.note.dog}</div>
             <LoaderButton
               block
               bsStyle="primary"
