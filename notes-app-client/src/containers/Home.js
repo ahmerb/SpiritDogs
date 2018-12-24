@@ -20,7 +20,8 @@ export default class Home extends Component {
     }
   
     try {
-      const notes = await this.notes();
+      let notes = await this.notes();
+      notes.sort((a, b) => b.createdAt - a.createdAt);
       this.setState({ notes });
     } catch (e) {
       alert(e);
@@ -51,7 +52,7 @@ export default class Home extends Component {
             >
               <ListGroupItem>
                 <h4>
-                  <b>{"\uFF0B"}</b> Create a new note
+                  <b>{"\uFF0B"}</b> Find today's dog!
                 </h4>
               </ListGroupItem>
             </LinkContainer>
@@ -61,8 +62,8 @@ export default class Home extends Component {
   renderLander() {
     return (
       <div className="lander">
-        <h1>Scratch</h1>
-        <p>A simple note taking app</p>
+        <h1>Spirit Dogs</h1>
+        <p>Which dog are you today?</p>
       </div>
     );
   }
@@ -70,7 +71,7 @@ export default class Home extends Component {
   renderNotes() {
     return (
       <div className="notes">
-        <PageHeader>Your Notes</PageHeader>
+        <PageHeader>Your Dogs</PageHeader>
         <ListGroup>
           {!this.state.isLoading && this.renderNotesList(this.state.notes)}
         </ListGroup>

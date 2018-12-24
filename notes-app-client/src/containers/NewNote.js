@@ -13,7 +13,8 @@ export default class NewNote extends Component {
     this.file = null;
 
     this.state = {
-      isLoading: null,
+      isClassifying: null,
+      isUploading: null,
       content: ""
     };
   }
@@ -40,21 +41,22 @@ export default class NewNote extends Component {
       return;
     }
   
-    this.setState({ isLoading: true });
+    this.setState({ isUploading: true });
   
     try {
       const attachment = this.file
         ? await s3Upload(this.file)
         : null;
   
-      await this.createNote({
+      const newNote = await this.createNote({
         attachment,
         content: this.state.content
       });
-      this.props.history.push("/");
+      
+      this.props.history.push(`/notes/${newNote.noteId}`);
     } catch (e) {
       alert(e);
-      this.setState({ isLoading: false });
+      this.setState({ isUploading: false });
     }
   }
   
@@ -68,16 +70,16 @@ export default class NewNote extends Component {
     return (
       <div className="NewNote">
         <form onSubmit={this.handleSubmit}>
+          <FormGroup controlId="file">
+            <ControlLabel>Selfie</ControlLabel>
+            <FormControl onChange={this.handleFileChange} type="file" />
+          </FormGroup>
           <FormGroup controlId="content">
             <FormControl
               onChange={this.handleChange}
               value={this.state.content}
-              componentClass="textarea"
+              type="text"
             />
-          </FormGroup>
-          <FormGroup controlId="file">
-            <ControlLabel>Attachment</ControlLabel>
-            <FormControl onChange={this.handleFileChange} type="file" />
           </FormGroup>
           <LoaderButton
             block
@@ -85,7 +87,7 @@ export default class NewNote extends Component {
             bsSize="large"
             disabled={!this.validateForm()}
             type="submit"
-            isLoading={this.state.isLoading}
+            isLoading={this.state.isUploading}
             text="Create"
             loadingText="Creating…"
           />
