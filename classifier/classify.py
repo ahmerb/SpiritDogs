@@ -9,10 +9,10 @@ from keras.models import load_model
 from keras.preprocessing import image
 from keras import backend as K
 import numpy as np
-from glob import glob
-import os
-import os.path
-import sys
+# from glob import glob
+# import os
+# import os.path
+# import sys
 
 # load list of dog names
 # dog_names = [item[20:-1] for item in sorted(glob("dogImages/train/*/"))]
@@ -64,18 +64,25 @@ def predict_breed(path):
   prediction = inception_model.predict(bottleneck_features)[0]
   
   # sort predicted breeds by highest probability, extract the top N predictions
-  breeds_predicted = [dog_names[idx] for idx in np.argsort(prediction)[::-1][:top_N]]
-  confidence_predicted = np.sort(prediction)[::-1][:top_N]
+  # breeds_predicted = [dog_names[idx] for idx in np.argsort(prediction)[::-1][:top_N]]
+  # confidence_predicted = np.sort(prediction)[::-1][:top_N]
+
+  breedNum = np.argmax(prediction)
+  breed = dog_names[breedNum]
+  confidence = prediction[breedNum]
   
   print('Predicting breed...')
   # take prediction, lookup in dog_names, return value
-  return breeds_predicted, confidence_predicted
+  # return breeds_predicted, confidence_predicted
+  return breed, confidence
 
 def make_prediction(path):
-  breeds, confidence = predict_breed(path)
-  print('\nTop 4 predictions')
-  for i, j in zip(breeds, confidence):
-    print('Predicted breed: {} with a confidence of {:.4f}'.format(i.replace("_", " "), j))
+  # breeds, confidence = predict_breed(path)
+  # print('\nTop 4 predictions')
+  # for i, j in zip(breeds, confidence):
+  #   print('Predicted breed: {} with a confidence of {:.4f}'.format(i.replace("_", " "), j))
+  breed, confidence = predict_breed(path)
+  print('Predicted breed: {} with a confidence of {:.4f}'.format(breed.replace("_", " "), confidence))
 
 if __name__ == "__main__":
   # test
