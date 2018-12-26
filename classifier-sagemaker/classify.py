@@ -8,12 +8,18 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.models import load_model
 from keras.preprocessing import image
-from keras import backend as K
 import numpy as np
 # from glob import glob
 # import os
 # import os.path
 # import sys
+
+from keras.applications.inception_v3 import InceptionV3, preprocess_input
+
+from keras import regularizers
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, AveragePooling2D
+from keras.layers import Input, Dropout, Flatten, Dense, Lambda
+from keras.models import Model
 
 # load list of dog names
 # dog_names = [item[20:-1] for item in sorted(glob("dogImages/train/*/"))]
@@ -37,37 +43,41 @@ def path_to_tensor(img_path):
 # bottleneck_features = np.load('bottleneck_features/DogInceptionV3Data.npz')
 
 # load model
-K.clear_session()
-inception_model = load_model('saved_models/weights.best.InceptionV3.hdf5')
+# tf.keras.backend.clear_session()
+# inception_model = Sequential()
+# inception_model.add(GlobalAveragePooling2D(input_shape=(5, 5, 2048))) #shape=train_InceptionV3.shape[1:]
+# inception_model.add(Dense(150, activation='relu', kernel_regularizer=regularizers.l2(0.005)))
+# inception_model.add(Dropout(0.4))
+# inception_model.add(Dense(dog_breeds, activation='softmax'))
+# inception_model.load_weights('saved_models/weights.best.InceptionV3.hdf5')
+
 
 # TODO: can we locally save and just load the InceptionV3 model,
 # instead of doing this import?
 # The import downloads weights to ~/.keras/models/ but this
 # is ephemeral so may require re-downloading on every lambda fn
 # invocation.
-def extract_InceptionV3(tensor):
-  from keras.applications.inception_v3 import InceptionV3, preprocess_input
-  return InceptionV3(weights='imagenet', include_top=False).predict(preprocess_input(tensor))
+def extract_InceptionV3():#tensor):
+  return InceptionV3(weights='imagenet', include_top=False)#.predict(preprocess_input(tensor))
 
 # top_N defines how many predictions to return
 # top_N = 4
 
-def save_model_tf(model):
-  print("Saving model in tf format...")
-  tf.keras.backend.set_learning_phase(0)  # Ignore dropout at inference
-  export_path = './dog_breed_model/1'
+# def save_model_tf(model):
+#   print("Saving model in tf format...")
+#   tf.keras.backend.set_learning_phase(0)  # Ignore dropout at inference
+#   export_path = './dog_breed_model/1'
 
-  # model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-
-  # Fetch the Keras session and save the model
-  # The signature definition is defined by the input and output tensors
-  # And stored with the default serving key
-  with tf.keras.backend.get_session() as sess:
-      tf.saved_model.simple_save(
-          sess,
-          export_path,
-          inputs={'input_image': model.input},
-          outputs={t.name: t for t in model.outputs})
+#   # Fetch the Keras session and save the model
+#   # The signature definition is defined by the input and output tensors
+#   # And stored with the default serving key
+#   with tf.keras.backend.get_session() as sess:
+#     with sess.as_default():
+#       tf.global_variables_initializer()
+      
+# tf-serving doesn't work because inception_model takes something of the shape
+# of bottleneck features output, but we want something of the shape of the image,
+# which is fed into bottleneck_features
 
 def predict_breed(path):
   # load image using path_to_tensor
@@ -76,11 +86,31 @@ def predict_breed(path):
   
   # obtain bottleneck features using extract_InceptionV3
   print('Extracting bottleneck features...')
-  bottleneck_features = extract_InceptionV3(image_tensor)
+  inception_model = InceptionV3(weights='imagenet', include_top=False)
+  base_model = Model(inception_model.input, inception_model.output)
+
+  # add different top layers 
+  l0 = Input(shape=(5, 5, 2048))
+  # l0 = base_model.output
+  l1 = GlobalAveragePooling2D()(l0)
+  l2 = Dense(150, activation='relu', kernel_regularizer=regularizers.l2(0.005))(l1)
+  l3 = Dropout(0.4)(l2)
+  l4 = Dense(dog_breeds, activation='softmax')(l3)
+  top_model = Model(input=l0, output=l4)
+  top_model.load_weights('saved_models/weights.best.InceptionV3.hdf5')
+  
+  full_model = Model(input=base_model.input, output=top_model(base_model.output))
+  # full_model = top_model(base_model)
+
+  # todo: define new_model := \tensor -> inception_model(start_model(preprocess_input(tensor)))
+
+  # save the model
+  # inception_model.save('dog_breed_model.h5')
+  # save_model_tf(inception_model)
   
   # feed into top_model for breed prediction
   print('Feeding bottlenneck features into top model...')
-  prediction = inception_model.predict(bottleneck_features)[0]
+  prediction = full_model.predict(preprocess_input(image_tensor))[0]
   
   # sort predicted breeds by highest probability, extract the top N predictions
   # breeds_predicted = [dog_names[idx] for idx in np.argsort(prediction)[::-1][:top_N]]
@@ -89,10 +119,6 @@ def predict_breed(path):
   breedNum = np.argmax(prediction)
   breed = dog_names[breedNum]
   confidence = prediction[breedNum]
-
-  # save the model
-  # inception_model.save('dog_breed_model.h5')
-  # save_model_tf(inception_model)
   
   print('Predicting breed...')
   # take prediction, lookup in dog_names, return value
