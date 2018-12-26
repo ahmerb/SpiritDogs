@@ -34,10 +34,11 @@ export async function main(event, context) {
         },
         // 'UpdateExpression' defines the attributes to be updated
         // 'ExpressionAttributeValues' defines the value in the update expression
-        UpdateExpression: "SET dog = :dog, dogNumber = :dogNumber",
+        UpdateExpression: "SET dog = :dog, dogNumber = :dogNumber, content = :readableDog",
         ExpressionAttributeValues: {
           ":dog": classifyResult.dog || null,
-          ":dogNumber": classifyResult.dogNumber || null
+          ":dogNumber": classifyResult.dogNumber || null,
+          ":readableDog": classifyResult.readableDog || null
         },
         // 'ReturnValues' specifies if and how to return the item's attributes,
         // where ALL_NEW returns all attributes of the item after the update; you
@@ -65,6 +66,7 @@ export async function main(event, context) {
 function classify(noteItem) {
   return {
     dog: 'borderCollie',
-    dogNumber: 1
+    dogNumber: 1,
+    readableDog: 'Border Collie'
   };
 }
