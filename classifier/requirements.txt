@@ -1,1 +1,7 @@
 tensorflow==1.0.0
+numpy==1.15.4
+keras==2.0.8
+
+# keeps removing contrib/keras too
+# try get it to include it
+# or install keras seperately

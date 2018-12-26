@@ -22,11 +22,19 @@ plugins:
 
 custom:
   pythonRequirements:
-    pythonBin: /Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6
+    # pythonBin: /Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6
     # zip: true
     slim: true
-    # dockerizePip: true
+    dockerizePip: true
     # invalidateCaches: true
+    slimPatterns:
+      - "**/*.DS_Store"
+      - "**/*.pyc"
+      - "**/external/*"
+      - "**/tensorflow/tensorboard/*"
+      - "**/tensorflow/contrib/*"
+      # - "!**/tensorflow/contrib/keras/*"
+      - "**/tensorflow/include/unsupported/*"
 
 package:
   exclude:
@@ -34,6 +42,14 @@ package:
     - haarcascades/*
     - dogImages/*
     - bottleneck_features/*
+    - "*.DS_store"
+    - "*.pyc"
+    - "/external/*"
+  #   - "/tensorflow/contrib/**"
+  #   - "!/tensorflow/contrib/keras/**"
+  #   - "/tensorflow/include/unsupported/*"
+  # include:
+  #   - "/tensorflow/contrib/keras/**"
 
 provider:
   name: aws
