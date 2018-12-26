@@ -4,7 +4,8 @@
 #   print("failed to import unzip_requirements")
 #   pass
 
-#from tensorflow import keras
+import tensorflow as tf
+from tensorflow import keras
 from keras.models import load_model
 from keras.preprocessing import image
 from keras import backend as K
@@ -51,6 +52,23 @@ def extract_InceptionV3(tensor):
 # top_N defines how many predictions to return
 # top_N = 4
 
+def save_model_tf(model):
+  print("Saving model in tf format...")
+  tf.keras.backend.set_learning_phase(0)  # Ignore dropout at inference
+  export_path = './dog_breed_model/1'
+
+  # model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+
+  # Fetch the Keras session and save the model
+  # The signature definition is defined by the input and output tensors
+  # And stored with the default serving key
+  with tf.keras.backend.get_session() as sess:
+      tf.saved_model.simple_save(
+          sess,
+          export_path,
+          inputs={'input_image': model.input},
+          outputs={t.name: t for t in model.outputs})
+
 def predict_breed(path):
   # load image using path_to_tensor
   print('Loading image...')
@@ -73,7 +91,8 @@ def predict_breed(path):
   confidence = prediction[breedNum]
 
   # save the model
-  inception_model.save('dog_breed_model.h5')
+  # inception_model.save('dog_breed_model.h5')
+  # save_model_tf(inception_model)
   
   print('Predicting breed...')
   # take prediction, lookup in dog_names, return value
