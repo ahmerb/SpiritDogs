@@ -105,7 +105,7 @@ def predict_breed(path):
   # todo: define new_model := \tensor -> inception_model(start_model(preprocess_input(tensor)))
 
   # save the model
-  # inception_model.save('dog_breed_model.h5')
+  full_model.save('dog_breed_model.h5')
   # save_model_tf(inception_model)
   
   # feed into top_model for breed prediction
