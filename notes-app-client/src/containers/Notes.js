@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { API, Storage } from "aws-amplify";
-import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
-import LoaderButton from "../components/LoaderButton";
+import { Image, Grid, Col, Row } from "react-bootstrap";
 import config from "../config";
 import "./Notes.css";
 import { s3Upload } from "../libs/awsLib";
+
 
 export default class Notes extends Component {
   constructor(props) {
@@ -17,24 +17,34 @@ export default class Notes extends Component {
         isDeleting: null,
         note: null,
         content: "",
-        attachmentURL: null
+        attachmentURL: null,
+        dogURL: null,
     };
   }
 
   async componentDidMount() {
     try {
       let attachmentURL;
+      let dogURL;
       const note = await this.getNote();
-      const { content, attachment } = note;
+      const { content, attachment, dog, dogNumber } = note;
 
       if (attachment) {
         attachmentURL = await Storage.vault.get(attachment);
       }
 
+      if (dog) {
+        dogURL = await Storage.get(`${dog}/${dogNumber}.jpg`, 
+        {
+          bucket: 'ahmerb-spiritdogs-dogs'
+        });
+      }
+
       this.setState({
         note,
         content,
-        attachmentURL
+        attachmentURL,
+        dogURL
       });
     } catch (e) {
       alert(e);
@@ -125,55 +135,26 @@ export default class Notes extends Component {
   
   render() {
     return (
-      <div className="Notes">
+      <div className="SpiritDog">
         {this.state.note &&
-          <form onSubmit={this.handleSubmit}>
-            <FormGroup controlId="content">
-              <FormControl
-                onChange={this.handleChange}
-                value={this.state.content}
-                componentClass="textarea"
-              />
-            </FormGroup>
-            {this.state.note.attachment &&
-              <FormGroup>
-                <ControlLabel>Attachment</ControlLabel>
-                <FormControl.Static>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={this.state.attachmentURL}
-                  >
-                    {this.formatFilename(this.state.note.attachment)}
-                  </a>
-                </FormControl.Static>
-              </FormGroup>}
-            <FormGroup controlId="file">
-              {!this.state.note.attachment &&
-                <ControlLabel>Attachment</ControlLabel>}
-              <FormControl onChange={this.handleFileChange} type="file" />
-            </FormGroup>
-            <div>{this.state.note.dog}</div>
-            <LoaderButton
-              block
-              bsStyle="primary"
-              bsSize="large"
-              disabled={!this.validateForm()}
-              type="submit"
-              isLoading={this.state.isLoading}
-              text="Save"
-              loadingText="Saving…"
-            />
-            <LoaderButton
-              block
-              bsStyle="danger"
-              bsSize="large"
-              isLoading={this.state.isDeleting}
-              onClick={this.handleDelete}
-              text="Delete"
-              loadingText="Deleting…"
-            />
-          </form>}
+          <>
+            <h2>{this.state.content}</h2>
+            <Grid>
+              <Row>
+                <Col xs={5}>
+                  <h3>Your Selfie</h3>
+                  <Image src={this.state.attachmentURL} responsive rounded/>
+                </Col>
+                <Col xs={5}>
+                  <h3>Your Spirit Dog</h3>
+                  <Image src={this.state.dogURL} responsive rounded/>
+                </Col>
+              </Row>
+            </Grid>
+            
+            {/* <S3Image imgKey="test.png" level="private" onLoad={url => console.log(url)} /> */}
+          </>
+        }
       </div>
     );
   }
