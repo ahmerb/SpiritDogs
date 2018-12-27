@@ -1,19 +1,11 @@
-import uuid from "uuid";
 import * as dynamoDbLib from "./libs/dynamodb-lib";
 import { success, failure } from "./libs/response-lib";
 import AWS from "aws-sdk";
 import nj from "numjs";
 import Jimp from "jimp";
 
-// AWS.config.update({
-//   accessKeyId: "<Access Key Here>",
-//   secretAccessKey: "<Secret Access Key Here>"
-// });
-
-console.log("attempt aws connection...");
 const s3 = new AWS.S3();
 const sageMakerRuntime = new AWS.SageMakerRuntime();
-console.log("...constructed.");
 
 export async function main(event, context) {
   let params = {
@@ -79,30 +71,26 @@ export async function main(event, context) {
 async function classify(noteItem) {
   const { attachment, userId, } = noteItem;
 
-  // talk to notes bucket to get image
+  // get user's uploaded image
   const imageObj = await s3.getObject({
     Bucket: 'ahmerb-notesapp-uploads',
     Key: `private/${userId}/${attachment}`
   }).promise();
   const imageAsBuffer = imageObj.Body; // type Buffer
 
+  // read image and resize it to 224x224
   const image = await Jimp.read(imageAsBuffer);
   image.resize(224, 224);
-  // const resizedImageAsBuffer = await image.getBufferAsync(Jimp.AUTO);
+
+  // extract raw image (no headers etc) and convert it to js array
   const resizedImageAsBuffer = image.bitmap.data;
   const resizedImage = [...resizedImageAsBuffer];
-  // console.log(image.bitmap.width, image.bitmap.height);
-  // console.log(image.bitmap.data);
-  console.log(resizedImage.length);
 
-  // divide by 255, reshape to (224,224,4), remove alpha channel (224,224,3), convert to list
+  // divide by 255, reshape to (224,224,4), remove alpha channel->(224,224,3), convert to list
   const imageArr = nj.array(resizedImage.map(digit => digit / 255.0)).reshape(224, 224, 4).slice(null, null, [null, 3]).tolist();
-  //console.log(`imageFlat.shape=${imageFlat}`);
 
-  // send image to sagemaker
+  // send image to sagemaker for classification
   const params = {
-    //Body: new Buffer('{"instances": [1.0,2.0,5.0]}'),
-    //ContentType: 'application/x-image',
     Body: new Buffer(`{ "instances": ${JSON.stringify([imageArr])} }`),
     EndpointName: 'dog-breed-classifier'
   };
