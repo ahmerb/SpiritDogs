@@ -37,6 +37,23 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:eu-west-1:*:*"
+    - Effect: Allow
+      Action:
+        - "s3:*"
+      Resource:
+        - "*"
+    - Effect: Allow
+      Action:
+        - sagemaker:DescribeEndpoint
+        - sagemaker:InvokeEndpoint
+      Resource: "arn:aws:sagemaker:*:*:endpoint/*"
+    - Effect: Allow
+      Action:
+        - sagemaker:ListEndpoints
+      Resource:
+        - "*"
+  iamManagedPolicies:
+    - "arn:aws:iam::716107353291:policy/AccessSpiritDogsEcrRepo"
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
