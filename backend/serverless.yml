@@ -117,7 +117,7 @@ functions:
   classify:
     # Defines an HTTP API endpoint that calls the main function in classify.js
     # - path: url path is /classify/{id}
-    # - method: DELETE request
+    # - method: GET request
     handler: classify.main
     events:
       - http:
