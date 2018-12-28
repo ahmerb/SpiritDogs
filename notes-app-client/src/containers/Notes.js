@@ -34,7 +34,7 @@ export default class Notes extends Component {
       }
 
       if (dog) {
-        dogURL = await Storage.get(`${dog}/${dogNumber}.jpg`, 
+        dogURL = await Storage.get(`${dogNumber}/1.jpg`, 
         {
           bucket: 'ahmerb-spiritdogs-dogs'
         });
