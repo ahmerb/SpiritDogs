@@ -27,11 +27,17 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
+    "amazon-cognito-identity-js": "^3.0.6",
+    "artillery": "^1.6.0-26",
+    "aws-amplify": "^1.1.18",
     "aws-api-gateway-cli-test": "^1.3.0",
+    "aws-api-gateway-client": "^0.2.16",
     "babel-runtime": "^6.26.0",
     "jimp": "^0.6.0",
     "numjs": "^0.16.0",
+    "serverless-artillery": "^0.3.2",
     "source-map-support": "^0.4.18",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "window-mock": "0.0.13"
   }
 }
