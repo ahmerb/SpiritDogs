@@ -18,6 +18,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "predeploy": "npm run build",
+    "deploy": "aws s3 sync build/ s3://ahmerb-notesapp-client --delete",
+    "postdeploy": "aws cloudfront create-invalidation --distribution-id E342N9GX7C6MUH --paths '/*' && aws cloudfront create-invalidation --distribution-id E3BY5TTCWYH34F --paths '/*'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
