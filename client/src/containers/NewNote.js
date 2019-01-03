@@ -86,7 +86,9 @@ export default class NewNote extends Component {
       <div className="NewNote">
         <form onSubmit={this.handleSubmit}>
           <FormGroup controlId="file">
-            <ControlLabel>Selfie</ControlLabel>
+            <ControlLabel>
+              Selfie - Image must be 4 channel (RGBA) Jpeg. E.g. <a href="https://raw.githubusercontent.com/ahmerb/SpiritDogs/master/classifier-sagemaker/images/dog_spotting1.jpg">this</a>
+            </ControlLabel>
             <FormControl onChange={this.handleFileChange} type="file" />
           </FormGroup>
           <LoaderButton

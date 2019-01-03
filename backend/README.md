@@ -1,3 +1,20 @@
+### Imporant: Note on Deploying
+
+This project includes npm native modules.
+They must be compiled for the Linux platform, as Lambda functions are run in Linux container.
+If you are not on Linux, you must use the Dockerfile to deploy.
+
+`docker build --pull -t sls-amazonlinux:latest .`
+`docker run --rm -it -v $HOME/.aws:/root/.aws -v $PWD:/src -v $PWD/.tmp/node_modules:/src/node_modules sls-amazonlinux:latest`
+
+Then inside the container,
+
+`cd /src`
+`npm install`
+`serverless deploy -v`
+
+---
+
 # Serverless Node.js Starter
 
 A Serverless starter that adds ES7 syntax, serverless-offline, environment variables, and unit test support. Part of the [Serverless Stack](http://serverless-stack.com) guide.
