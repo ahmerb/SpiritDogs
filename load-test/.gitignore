@@ -1,10 +1,5 @@
-# dataset
-dogImages/*
-
-# bottleneck features
-bottleneck_features/*
-
-.requirements.zip
+images/
+*.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,7 @@
+"Method","Name","# requests","# failures","Median response time","Average response time","Min response time","Max response time","Average Content Size","Requests/s"
+"GET","/classify/[noteId]",3594,262,1200,1376,694,6424,71,3.00
+"GET","/prod/notes",2645,0,110,191,64,2426,21804,2.21
+"POST","/prod/notes",3892,567,110,268,54,6189,215,3.25
+"GET","notes/[id]",1258,0,88,127,53,1591,256,1.05
+"PUT","s3upload",4497,0,650,1090,166,34591,0,3.75
+"None","Total",15886,829,350,727,53,34591,3719,13.25
